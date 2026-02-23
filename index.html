@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grow a Garden</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 50%, #90EE90 50%, #7FD67E 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Farm Background Decorations */
+        body::before {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: 
+                repeating-linear-gradient(90deg, 
+                    transparent, transparent 100px,
+                    rgba(76, 187, 23, 0.1) 100px, rgba(76, 187, 23, 0.1) 102px
+                ),
+                linear-gradient(to bottom, #90EE90 0%, #7FD67E 50%, #6FD46E 100%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: '☁️ ☁️ ☁️';
+            position: fixed;
+            top: 50px;
+            left: 0;
+            right: 0;
+            font-size: 50px;
+            opacity: 0.6;
+            animation: clouds 60s linear infinite;
+            z-index: 0;
+            letter-spacing: 200px;
+        }
+
+        @keyframes clouds {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(100%); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: 4px solid #8B4513;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+
+        .header::before {
+            content: '🌾';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 40px;
+        }
+
+        .header::after {
+            content: '🌾';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 40px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F0F0F0 100%);
+            padding: 10px 18px;
+            border-radius: 20px;
+            border: 3px solid #8B4513;
+            color: #2C5F2D;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-item .icon {
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .garden-section {
+            background: linear-gradient(135deg, #FFF8DC 0%, #F5DEB3 100%);
+            border: 5px solid #8B4513;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.6);
+            position: relative;
+        }
+
+        .garden-section::before {
+            content: '🚜';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 30px;
+        }
+
+        .garden-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .plot {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #8B6914 0%, #654321 100%);
+            border: 4px solid #5C4033;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .plot:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .plot.empty::before {
+            content: '🌱';
+            font-size: 40px;
+            opacity: 0.4;
+        }
+
+        .timer-display {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 3;
+            font-family: 'Fredoka', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .timer-display.ready {
+            background: rgba(76, 175, 80, 0.9);
+            animation: pulseReady 1s infinite;
+        }
+
+        @keyframes pulseReady {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        .mutation-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .plant.glow {
+            animation: glowPulse 2s infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 10px yellow); }
+            50% { filter: drop-shadow(0 0 20px yellow); }
+        }
+
+        .plant.sparkle {
+            animation: sparkleSpin 3s linear infinite;
+        }
+
+        @keyframes sparkleSpin {
+            0% { filter: drop-shadow(0 0 10px cyan) hue-rotate(0deg); }
+            100% { filter: drop-shadow(0 0 10px cyan) hue-rotate(360deg); }
+        }
+
+        .plant.frost {
+            filter: drop-shadow(0 0 15px lightblue) brightness(1.3);
+        }
+
+        .plant.golden {
+            animation: goldenShine 2s infinite;
+        }
+
+        @keyframes goldenShine {
+            0%, 100% { filter: drop-shadow(0 0 15px gold) brightness(1.2); }
+            50% { filter: drop-shadow(0 0 25px gold) brightness(1.5); }
+        }
+
+        .plant.dark {
+            filter: drop-shadow(0 0 20px purple) brightness(0.8) contrast(1.5);
+        }
+
+        .plant.crystal {
+            animation: crystalShimmer 2s infinite;
+        }
+
+        @keyframes crystalShimmer {
+            0%, 100% { filter: drop-shadow(0 0 20px white) brightness(1.5); }
+            50% { filter: drop-shadow(0 0 30px cyan) brightness(1.8); }
+        }
+
+        .plant.ethereal {
+            animation: etherealFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.8)) brightness(1.4);
+        }
+
+        @keyframes etherealFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .plant.celestial-mut {
+            animation: celestialRotate 4s linear infinite, celestialGlow 2s infinite;
+        }
+
+        @keyframes celestialRotate {
+            0% { filter: hue-rotate(0deg) drop-shadow(0 0 30px white); }
+            100% { filter: hue-rotate(360deg) drop-shadow(0 0 30px white); }
+        }
+
+        @keyframes celestialGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .plant.flaming {
+            animation: flamePulse 1s infinite;
+        }
+
+        @keyframes flamePulse {
+            0%, 100% { filter: drop-shadow(0 0 15px red) brightness(1.2); }
+            50% { filter: drop-shadow(0 0 30px orange) brightness(1.5); }
+        }
+
+        .plant.electric {
+            animation: electricZap 0.5s infinite;
+        }
+
+        @keyframes electricZap {
+            0%, 100% { filter: drop-shadow(0 0 15px yellow) brightness(1.3); }
+            50% { filter: drop-shadow(0 0 25px cyan) brightness(1.6); }
+        }
+
+        .plant.silver {
+            filter: drop-shadow(0 0 20px silver) brightness(1.4) saturate(0.5);
+        }
+
+        .plant.shadow {
+            animation: shadowPulse 2s infinite;
+        }
+
+        @keyframes shadowPulse {
+            0%, 100% { filter: drop-shadow(0 0 20px black) brightness(0.6); }
+            50% { filter: drop-shadow(0 0 35px purple) brightness(0.8); }
+        }
+
+        .plant.diamond {
+            animation: diamondShine 1.5s infinite;
+        }
+
+        @keyframes diamondShine {
+            0%, 100% { filter: drop-shadow(0 0 25px white) brightness(1.8); }
+            50% { filter: drop-shadow(0 0 40px cyan) brightness(2.0); }
+        }
+
+        .plant.neon {
+            animation: neonGlow 2s linear infinite;
+        }
+
+        @keyframes neonGlow {
+            0% { filter: hue-rotate(0deg) drop-shadow(0 0 20px currentColor) brightness(1.5); }
+            100% { filter: hue-rotate(360deg) drop-shadow(0 0 20px currentColor) brightness(1.5); }
+        }
+
+        .plant.ghostly {
+            animation: ghostlyFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(200, 200, 255, 0.8)) brightness(1.3);
+            opacity: 0.9;
+        }
+
+        @keyframes ghostlyFloat {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-8px) translateX(4px); }
+            75% { transform: translateY(-8px) translateX(-4px); }
+        }
+
+        .plant.astral {
+            animation: astralRotate 4s linear infinite;
+        }
+
+        @keyframes astralRotate {
+            0% { filter: hue-rotate(0deg) drop-shadow(0 0 30px white) brightness(1.6); }
+            100% { filter: hue-rotate(360deg) drop-shadow(0 0 30px white) brightness(1.6); }
+        }
+
+        .plant.divine-mut {
+            animation: divineGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes divineGlow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 30px gold) brightness(1.8);
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 50px white) brightness(2.0);
+                transform: scale(1.15);
+            }
+        }
+
+        .plant.infernal {
+            animation: infernalBurn 1.5s infinite;
+        }
+
+        @keyframes infernalBurn {
+            0%, 100% { filter: drop-shadow(0 0 25px darkred) brightness(1.3); }
+            50% { filter: drop-shadow(0 0 40px red) brightness(1.7); }
+        }
+
+        .plant.cosmic {
+            animation: cosmicSwirl 5s linear infinite;
+        }
+
+        @keyframes cosmicSwirl {
+            0% { 
+                filter: hue-rotate(0deg) drop-shadow(0 0 35px purple) brightness(1.7);
+                transform: rotate(0deg);
+            }
+            100% { 
+                filter: hue-rotate(360deg) drop-shadow(0 0 35px cyan) brightness(1.7);
+                transform: rotate(360deg);
+            }
+        }
+
+        .plant.quantum {
+            animation: quantumPhase 0.5s infinite;
+        }
+
+        @keyframes quantumPhase {
+            0%, 100% { 
+                filter: drop-shadow(0 0 40px cyan) brightness(2.0);
+                opacity: 1;
+            }
+            50% { 
+                filter: drop-shadow(0 0 60px white) brightness(2.2);
+                opacity: 0.7;
+            }
+        }
+
+        .plant.legendary-mut {
+            animation: legendaryAura 3s ease-in-out infinite;
+        }
+
+        @keyframes legendaryAura {
+            0%, 100% { 
+                filter: drop-shadow(0 0 50px gold) drop-shadow(0 0 30px white) brightness(2.0);
+                transform: scale(1) rotate(0deg);
+            }
+            50% { 
+                filter: drop-shadow(0 0 70px orange) drop-shadow(0 0 50px yellow) brightness(2.3);
+                transform: scale(1.2) rotate(5deg);
+            }
+        }
+
+        .seed-inventory-item {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .seed-inventory-item:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .seed-inventory-item:active {
+            cursor: grabbing;
+        }
+
+        .seed-inventory-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .seed-inventory-item .seed-icon {
+            font-size: 40px;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .seed-inventory-item .seed-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 3px;
+        }
+
+        .seed-inventory-item .seed-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Fredoka', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .plot.drag-over {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border-color: #4CAF50;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .plot.drag-over::before {
+            content: '⬇️';
+            font-size: 40px;
+            opacity: 0.8;
+        }
+
+        .seeds-inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Overlay Inventory System */
+        .inventory-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 90%;
+            max-width: 900px;
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
+            border: 5px solid #8B4513;
+            border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100;
+            padding: 25px 25px 35px 25px;
+        }
+
+        .inventory-overlay.open {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .inventory-toggle-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #2C5F2D;
+            border: 4px solid #8B4513;
+            padding: 14px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 18px;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+            z-index: 101;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .inventory-toggle-btn:hover {
+            transform: translateX(-50%) translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .inventory-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #8B4513;
+            padding-bottom: 10px;
+        }
+
+        .inventory-tab {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%);
+            border: 3px solid #8B4513;
+            border-radius: 15px 15px 0 0;
+            color: #2C5F2D;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .inventory-tab.active {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #2C5F2D;
+            border-bottom: none;
+            transform: translateY(2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .inventory-tab:hover {
+            background: linear-gradient(135deg, #FFE4B5 0%, #FFD700 100%);
+            transform: translateY(-2px);
+        }
+
+        .inventory-content {
+            display: none;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .inventory-content.active {
+            display: block;
+        }
+
+        .unified-inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        /* Scrollbar styling */
+        .inventory-content::-webkit-scrollbar,
+        .seeds-inventory-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .inventory-content::-webkit-scrollbar-track,
+        .seeds-inventory-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .inventory-content::-webkit-scrollbar-thumb,
+        .seeds-inventory-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .inventory-content::-webkit-scrollbar-thumb:hover,
+        .seeds-inventory-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .plant {
+            font-size: 50px;
+            transition: all 0.3s;
+            animation: growIn 0.5s ease-out;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes growIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .plant.stage-1 {
+            font-size: 25px;
+        }
+
+        .plant.stage-2 {
+            font-size: 35px;
+        }
+
+        .plant.stage-3 {
+            font-size: 50px;
+        }
+
+        .rarity-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .prismatic {
+            animation: rainbow 3s linear infinite;
+        }
+
+        .prismatic .rarity-glow {
+            background: linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet);
+            animation: pulse 2s infinite, rainbow 3s linear infinite;
+        }
+
+        .rarity-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
+            border: 4px solid #8B4513;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.6);
+        }
+
+        .panel h2 {
+            margin-bottom: 20px;
+            color: #2C5F2D;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            text-shadow: 2px 2px 0px #FFD700, 4px 4px 0px rgba(0, 0, 0, 0.2);
+            border-bottom: 3px solid #8B4513;
+            padding-bottom: 12px;
+        }
+
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
+            border: 3px solid #DEB887;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .shop-item:hover {
+            transform: translateX(8px) scale(1.02);
+            background: linear-gradient(135deg, #FFFACD 0%, #FFE4B5 100%);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            border-color: #FFD700;
+        }
+
+        .shop-item.out-of-stock {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.7);
+        }
+
+        .shop-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .shop-item-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shop-item-header .seed-icon {
+            font-size: 32px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .shop-item-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .shop-item-description {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-left: 44px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .stock-display {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .stock-display.low {
+            background: rgba(255, 152, 0, 0.8);
+        }
+
+        .stock-display.out {
+            background: rgba(244, 67, 54, 0.8);
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: 3px solid #2E7D32;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+        }
+
+        .buy-btn:disabled {
+            background: linear-gradient(135deg, #9E9E9E 0%, #757575 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border-color: #616161;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .inventory-item {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .inventory-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .inventory-item .plant-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .inventory-item .count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Fredoka', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .inventory-item .rarity-name {
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .sell-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: 3px solid #2E7D32;
+            padding: 8px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Fredoka', sans-serif;
+            margin-top: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .sell-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
+            background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #2C5F2D 0%, #1B3E1F 100%);
+            color: white;
+            padding: 15px 25px;
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+            font-weight: 700;
+            font-family: 'Fredoka', sans-serif;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .garden-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .garden-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .title {
+            text-align: center;
+            color: #2C5F2D;
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            font-family: 'Fredoka', sans-serif;
+            text-shadow: 3px 3px 0px #FFD700, 6px 6px 0px rgba(139, 69, 19, 0.4);
+            letter-spacing: 2px;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🌾 FARMVILLE GARDEN 🌾</div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="icon">💰</span>
+                    <span id="money">500</span> Coins
+                </div>
+                <div class="stat-item">
+                    <span class="icon">🏆</span>
+                    <span id="totalHarvested">0</span> Harvested
+                </div>
+                <div class="stat-item" id="weatherDisplay">
+                    <span class="icon">☀️</span>
+                    <span>Sunny</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="garden-section">
+                <h2 style="color: #2C5F2D; margin-bottom: 15px; font-family: 'Fredoka', sans-serif; font-size: 28px; font-weight: 800; text-shadow: 2px 2px 0px #FFD700, 4px 4px 0px rgba(0, 0, 0, 0.2);">🚜 Your Farm Garden</h2>
+                <div class="garden-grid" id="gardenGrid"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="panel">
+                    <h2>🏪 Seed Shop</h2>
+                    <div id="shopContainer"></div>
+                    <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border: 3px solid #8B4513; border-radius: 12px; text-align: center; color: #2C5F2D; font-size: 13px; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+                        🔄 Stock refreshes in: <span id="stockTimer">5:00</span>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>🌤️ Weather Info</h2>
+                    <div style="text-align: center; padding: 15px;">
+                        <div style="font-size: 48px; margin-bottom: 10px;" id="currentWeatherIcon">☀️</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #2C5F2D; margin-bottom: 10px;" id="currentWeatherName">Sunny</div>
+                        <div style="font-size: 14px; color: #2C5F2D; margin-bottom: 10px;">
+                            Mutation Chance: <span id="mutationChance" style="font-weight: 800; color: #FFD700;">5%</span>
+                        </div>
+                        <div style="padding: 10px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border: 3px solid #8B4513; border-radius: 12px; font-size: 13px; font-weight: 700; color: #2C5F2D; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
+                            🔄 Weather changes in: <span id="weatherTimer">2:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Overlay -->
+        <button class="inventory-toggle-btn" id="inventoryToggle">
+            📦 Inventory
+        </button>
+
+        <div class="inventory-overlay" id="inventoryOverlay">
+            <div class="inventory-tabs">
+                <button class="inventory-tab active" onclick="switchTab('seeds')">
+                    🌱 Seeds
+                </button>
+                <button class="inventory-tab" onclick="switchTab('harvested')">
+                    🌾 Harvested
+                </button>
+            </div>
+            
+            <div class="inventory-content active" id="seedsContent">
+                <div class="unified-inventory-grid" id="seedsInventoryGrid"></div>
+            </div>
+            
+            <div class="inventory-content" id="harvestedContent">
+                <div class="unified-inventory-grid" id="inventoryGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Plant Types (Common to Prismatic) - Expanded
+        const plantTypes = [
+            // Common (Tier 1)
+            { name: 'Carrot', rarity: 'Common', color: '#999999', emoji: '🥕', baseValue: 30, price: 50, growthTime: 6000, baseWeight: { min: 0.5, max: 2.0 } },
+            { name: 'Radish', rarity: 'Common', color: '#999999', emoji: '🌰', baseValue: 28, price: 45, growthTime: 5500, baseWeight: { min: 0.4, max: 1.8 } },
+            { name: 'Lettuce', rarity: 'Common', color: '#999999', emoji: '🥬', baseValue: 32, price: 55, growthTime: 6200, baseWeight: { min: 0.6, max: 2.2 } },
+            
+            // Uncommon (Tier 2)
+            { name: 'Strawberry', rarity: 'Uncommon', color: '#1eff00', emoji: '🍓', baseValue: 60, price: 100, growthTime: 7000, baseWeight: { min: 0.3, max: 1.5 } },
+            { name: 'Corn', rarity: 'Uncommon', color: '#1eff00', emoji: '🌽', baseValue: 65, price: 110, growthTime: 7200, baseWeight: { min: 0.8, max: 2.0 } },
+            { name: 'Cabbage', rarity: 'Uncommon', color: '#1eff00', emoji: '🥬', baseValue: 58, price: 95, growthTime: 6800, baseWeight: { min: 0.7, max: 1.9 } },
+            { name: 'Daisy', rarity: 'Uncommon', color: '#1eff00', emoji: '🌼', baseValue: 62, price: 105, growthTime: 7100, baseWeight: { min: 0.3, max: 1.4 } },
+            
+            // Rare (Tier 3)
+            { name: 'Tomato', rarity: 'Rare', color: '#0070dd', emoji: '🍅', baseValue: 140, price: 200, growthTime: 8000, baseWeight: { min: 0.4, max: 1.8 } },
+            { name: 'Pumpkin', rarity: 'Rare', color: '#0070dd', emoji: '🎃', baseValue: 150, price: 220, growthTime: 8500, baseWeight: { min: 2.0, max: 5.0 } },
+            { name: 'Eggplant', rarity: 'Rare', color: '#0070dd', emoji: '🍆', baseValue: 135, price: 190, growthTime: 7800, baseWeight: { min: 0.5, max: 2.0 } },
+            { name: 'Tulip', rarity: 'Rare', color: '#0070dd', emoji: '🌷', baseValue: 145, price: 210, growthTime: 8200, baseWeight: { min: 0.3, max: 1.5 } },
+            
+            // Epic (Tier 4)
+            { name: 'Sunflower', rarity: 'Epic', color: '#a335ee', emoji: '🌻', baseValue: 280, price: 400, growthTime: 9000, baseWeight: { min: 1.0, max: 3.0 } },
+            { name: 'Watermelon', rarity: 'Epic', color: '#a335ee', emoji: '🍉', baseValue: 300, price: 450, growthTime: 9500, baseWeight: { min: 3.0, max: 8.0 } },
+            { name: 'Pepper', rarity: 'Epic', color: '#a335ee', emoji: '🌶️', baseValue: 270, price: 380, growthTime: 8800, baseWeight: { min: 0.3, max: 1.2 } },
+            { name: 'Lavender', rarity: 'Epic', color: '#a335ee', emoji: '💜', baseValue: 290, price: 420, growthTime: 9200, baseWeight: { min: 0.4, max: 1.8 } },
+            
+            // Legendary (Tier 5)
+            { name: 'Rose', rarity: 'Legendary', color: '#ff8000', emoji: '🌹', baseValue: 600, price: 800, growthTime: 10000, baseWeight: { min: 0.5, max: 2.5 } },
+            { name: 'Peony', rarity: 'Legendary', color: '#ff8000', emoji: '🌺', baseValue: 620, price: 850, growthTime: 10300, baseWeight: { min: 0.6, max: 2.6 } },
+            { name: 'Dragon Fruit', rarity: 'Legendary', color: '#ff8000', emoji: '🐉', baseValue: 650, price: 900, growthTime: 10500, baseWeight: { min: 1.0, max: 3.5 } },
+            
+            // Mythic (Tier 6)
+            { name: 'Lotus', rarity: 'Mythic', color: '#e91e63', emoji: '🪷', baseValue: 1200, price: 1500, growthTime: 11000, baseWeight: { min: 1.5, max: 4.0 } },
+            { name: 'Hibiscus', rarity: 'Mythic', color: '#e91e63', emoji: '🌺', baseValue: 1250, price: 1600, growthTime: 11300, baseWeight: { min: 0.8, max: 3.0 } },
+            { name: 'Phoenix Flower', rarity: 'Mythic', color: '#e91e63', emoji: '🔥', baseValue: 1300, price: 1700, growthTime: 11500, baseWeight: { min: 1.2, max: 3.8 } },
+            
+            // Exotic (Tier 7)
+            { name: 'Orchid', rarity: 'Exotic', color: '#00bcd4', emoji: '🌸', baseValue: 2500, price: 3000, growthTime: 12000, baseWeight: { min: 0.8, max: 3.5 } },
+            { name: 'Blue Rose', rarity: 'Exotic', color: '#00bcd4', emoji: '🌹', baseValue: 2600, price: 3200, growthTime: 12300, baseWeight: { min: 0.9, max: 3.2 } },
+            { name: 'Star Fruit', rarity: 'Exotic', color: '#00bcd4', emoji: '⭐', baseValue: 2700, price: 3400, growthTime: 12500, baseWeight: { min: 1.5, max: 4.5 } },
+            
+            // Divine (Tier 8)
+            { name: 'Cherry Blossom', rarity: 'Divine', color: '#ffeb3b', emoji: '🌸', baseValue: 5000, price: 6000, growthTime: 13000, baseWeight: { min: 1.0, max: 4.5 } },
+            { name: 'Golden Apple', rarity: 'Divine', color: '#ffeb3b', emoji: '🍎', baseValue: 5200, price: 6500, growthTime: 13500, baseWeight: { min: 1.5, max: 5.0 } },
+            { name: 'Angel Trumpet', rarity: 'Divine', color: '#ffeb3b', emoji: '🎺', baseValue: 5400, price: 7000, growthTime: 13800, baseWeight: { min: 1.2, max: 4.8 } },
+            
+            // Celestial (Tier 9)
+            { name: 'Moonflower', rarity: 'Celestial', color: '#b3e5fc', emoji: '🌙', baseValue: 10000, price: 12000, growthTime: 14000, baseWeight: { min: 2.0, max: 6.0 } },
+            { name: 'Stardust Lily', rarity: 'Celestial', color: '#b3e5fc', emoji: '⭐', baseValue: 10500, price: 13000, growthTime: 14500, baseWeight: { min: 2.2, max: 6.5 } },
+            { name: 'Cosmic Berry', rarity: 'Celestial', color: '#b3e5fc', emoji: '🌌', baseValue: 11000, price: 14000, growthTime: 15000, baseWeight: { min: 2.5, max: 7.0 } },
+            
+            // Prismatic (Tier 10)
+            { name: 'Rainbow Flower', rarity: 'Prismatic', color: 'rainbow', emoji: '🌈', baseValue: 25000, price: 25000, growthTime: 15000, baseWeight: { min: 3.0, max: 10.0 } },
+            { name: 'Crystal Rose', rarity: 'Prismatic', color: 'rainbow', emoji: '💎', baseValue: 28000, price: 28000, growthTime: 16000, baseWeight: { min: 3.5, max: 11.0 } },
+            { name: 'Eternal Bloom', rarity: 'Prismatic', color: 'rainbow', emoji: '✨', baseValue: 30000, price: 30000, growthTime: 17000, baseWeight: { min: 4.0, max: 12.0 } }
+        ];
+
+        // Weather System
+        const weatherTypes = [
+            { name: 'Sunny', emoji: '☀️', mutationChance: 0.05, color: '#FFD700' },
+            { name: 'Rainy', emoji: '🌧️', mutationChance: 0.15, color: '#4682B4' },
+            { name: 'Cloudy', emoji: '☁️', mutationChance: 0.08, color: '#B0C4DE' },
+            { name: 'Stormy', emoji: '⛈️', mutationChance: 0.20, color: '#483D8B' },
+            { name: 'Lunar', emoji: '🌙', mutationChance: 0.25, color: '#191970' },
+            { name: 'Misty', emoji: '🌫️', mutationChance: 0.12, color: '#778899' }
+        ];
+
+        // Mutation Types - Expanded
+        const mutationTypes = [
+            // Tier 1 Mutations (1.5x - 2.0x)
+            { name: 'Glowing', emoji: '✨', prefix: 'Glowing', multiplier: 1.5, visual: 'glow' },
+            { name: 'Shiny', emoji: '🌟', prefix: 'Shiny', multiplier: 1.6, visual: 'glow' },
+            { name: 'Sparkling', emoji: '💫', prefix: 'Sparkling', multiplier: 1.8, visual: 'sparkle' },
+            { name: 'Frosty', emoji: '❄️', prefix: 'Frosty', multiplier: 2.0, visual: 'frost' },
+            
+            // Tier 2 Mutations (2.0x - 2.5x)
+            { name: 'Flaming', emoji: '🔥', prefix: 'Flaming', multiplier: 2.0, visual: 'flaming' },
+            { name: 'Electric', emoji: '⚡', prefix: 'Electric', multiplier: 2.1, visual: 'electric' },
+            { name: 'Golden', emoji: '⭐', prefix: 'Golden', multiplier: 2.5, visual: 'golden' },
+            { name: 'Silver', emoji: '🌙', prefix: 'Silver', multiplier: 2.2, visual: 'silver' },
+            
+            // Tier 3 Mutations (2.5x - 3.5x)
+            { name: 'Dark', emoji: '🌑', prefix: 'Dark', multiplier: 2.5, visual: 'dark' },
+            { name: 'Shadow', emoji: '👤', prefix: 'Shadow', multiplier: 2.6, visual: 'shadow' },
+            { name: 'Crystal', emoji: '💎', prefix: 'Crystal', multiplier: 3.0, visual: 'crystal' },
+            { name: 'Diamond', emoji: '💠', prefix: 'Diamond', multiplier: 3.2, visual: 'diamond' },
+            { name: 'Neon', emoji: '🌈', prefix: 'Neon', multiplier: 2.8, visual: 'neon' },
+            
+            // Tier 4 Mutations (3.5x - 4.5x)
+            { name: 'Ethereal', emoji: '👻', prefix: 'Ethereal', multiplier: 3.5, visual: 'ethereal' },
+            { name: 'Ghostly', emoji: '🌫️', prefix: 'Ghostly', multiplier: 3.6, visual: 'ghostly' },
+            { name: 'Celestial', emoji: '🌟', prefix: 'Celestial', multiplier: 4.0, visual: 'celestial-mut' },
+            { name: 'Astral', emoji: '✨', prefix: 'Astral', multiplier: 4.2, visual: 'astral' },
+            
+            // Tier 5 Mutations (4.5x - 6.0x)
+            { name: 'Divine', emoji: '🙏', prefix: 'Divine', multiplier: 4.5, visual: 'divine-mut' },
+            { name: 'Infernal', emoji: '😈', prefix: 'Infernal', multiplier: 4.8, visual: 'infernal' },
+            { name: 'Cosmic', emoji: '🌌', prefix: 'Cosmic', multiplier: 5.0, visual: 'cosmic' },
+            { name: 'Quantum', emoji: '⚛️', prefix: 'Quantum', multiplier: 5.5, visual: 'quantum' },
+            { name: 'Legendary', emoji: '🏆', prefix: 'Legendary', multiplier: 6.0, visual: 'legendary-mut' }
+        ];
+
+        // Game State
+        const gameState = {
+            money: 500,
+            seeds: {},
+            totalHarvested: 0,
+            garden: [],
+            inventory: {},
+            shopStock: {},
+            lastStockRefresh: Date.now(),
+            currentWeather: weatherTypes[0],
+            lastWeatherChange: Date.now(),
+            inventoryOpen: false
+        };
+
+        // Initialize seeds inventory
+        plantTypes.forEach(plant => {
+            gameState.seeds[plant.name] = plant.name === 'Carrot' ? 3 : 0;
+        });
+
+        // Inventory Overlay Functions
+        function toggleInventory() {
+            gameState.inventoryOpen = !gameState.inventoryOpen;
+            const overlay = document.getElementById('inventoryOverlay');
+            const btn = document.getElementById('inventoryToggle');
+            
+            if (gameState.inventoryOpen) {
+                overlay.classList.add('open');
+                btn.textContent = '✕ Close';
+            } else {
+                overlay.classList.remove('open');
+                btn.textContent = '📦 Inventory';
+            }
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.inventory-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update content
+            const contents = document.querySelectorAll('.inventory-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'seeds') {
+                document.getElementById('seedsContent').classList.add('active');
+            } else {
+                document.getElementById('harvestedContent').classList.add('active');
+            }
+        }
+
+        // Add event listener for inventory toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('inventoryToggle').addEventListener('click', toggleInventory);
+        });
+
+        // Initialize Garden
+        function initGarden() {
+            const grid = document.getElementById('gardenGrid');
+            for (let i = 0; i < 25; i++) {
+                const plot = document.createElement('div');
+                plot.className = 'plot empty';
+                plot.dataset.index = i;
+                
+                // Add click functionality (for harvesting)
+                plot.onclick = () => {
+                    if (gameState.garden[i] !== null) {
+                        harvestPlant(i);
+                    }
+                };
+                
+                // Add drag and drop functionality
+                plot.addEventListener('dragover', handleDragOver);
+                plot.addEventListener('dragleave', handleDragLeave);
+                plot.addEventListener('drop', handleDrop);
+                
+                grid.appendChild(plot);
+                gameState.garden.push(null);
+            }
+            updateUI();
+        }
+
+        // Drag and Drop Handlers
+        let draggedSeedType = null;
+
+        function handleDragStart(e, plantName) {
+            draggedSeedType = plantName;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            draggedSeedType = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const index = parseInt(e.currentTarget.dataset.index);
+            if (gameState.garden[index] === null) {
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            const index = parseInt(e.currentTarget.dataset.index);
+            
+            if (draggedSeedType && gameState.garden[index] === null) {
+                plantSeedByName(index, draggedSeedType);
+            }
+        }
+
+        // Plant Seed (by name for drag and drop)
+        function plantSeedByName(index, plantName) {
+            if (gameState.garden[index] !== null) {
+                return;
+            }
+
+            if (gameState.seeds[plantName] <= 0) {
+                showNotification('❌ No seeds left!');
+                return;
+            }
+
+            const selectedPlant = plantTypes.find(p => p.name === plantName);
+            if (!selectedPlant) return;
+
+            gameState.seeds[plantName]--;
+            
+            // Check for mutation
+            let mutation = null;
+            if (Math.random() < gameState.currentWeather.mutationChance) {
+                mutation = mutationTypes[Math.floor(Math.random() * mutationTypes.length)];
+                showNotification(`✨ ${mutation.prefix} mutation occurred!`);
+            }
+
+            const plant = {
+                plantType: selectedPlant,
+                stage: 1,
+                plantedAt: Date.now(),
+                harvestTime: Date.now() + selectedPlant.growthTime,
+                mutation: mutation
+            };
+
+            gameState.garden[index] = plant;
+            
+            // Start growth
+            growPlant(index);
+            
+            updateUI();
+            renderGarden();
+            renderSeedsInventory();
+        }
+
+        // Grow Plant
+        function growPlant(index) {
+            const plant = gameState.garden[index];
+            if (!plant) return;
+
+            const growTime = plant.plantType.growthTime / 3; // Divide by 3 stages
+            
+            const growInterval = setInterval(() => {
+                if (!gameState.garden[index] || gameState.garden[index].stage >= 3) {
+                    clearInterval(growInterval);
+                    return;
+                }
+
+                gameState.garden[index].stage++;
+                renderGarden();
+            }, growTime);
+        }
+
+        // Initialize Shop Stock
+        function initializeShopStock() {
+            plantTypes.forEach(plant => {
+                // Stock based on rarity - higher rarity = lower stock
+                const baseStock = plant.name === 'Carrot' ? 999 : 
+                                  plantTypes.indexOf(plant) < 3 ? 30 :
+                                  plantTypes.indexOf(plant) < 6 ? 15 : 5;
+                gameState.shopStock[plant.name] = Math.floor(Math.random() * baseStock) + Math.floor(baseStock / 2);
+            });
+            renderShop();
+        }
+
+        // Refresh Shop Stock
+        function refreshShopStock() {
+            plantTypes.forEach(plant => {
+                if (plant.name !== 'Carrot') {
+                    const baseStock = plantTypes.indexOf(plant) < 3 ? 30 :
+                                      plantTypes.indexOf(plant) < 6 ? 15 : 5;
+                    gameState.shopStock[plant.name] = Math.floor(Math.random() * baseStock) + Math.floor(baseStock / 2);
+                }
+            });
+            gameState.lastStockRefresh = Date.now();
+            showNotification('🔄 Shop stock refreshed!');
+            renderShop();
+        }
+
+        // Update Stock Timer
+        function updateStockTimer() {
+            const elapsed = Date.now() - gameState.lastStockRefresh;
+            const remaining = (5 * 60 * 1000) - elapsed; // 5 minutes in ms
+            
+            if (remaining <= 0) {
+                refreshShopStock();
+                return;
+            }
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            const timerEl = document.getElementById('stockTimer');
+            if (timerEl) {
+                timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Update Weather Timer
+        function updateWeatherTimer() {
+            const elapsed = Date.now() - gameState.lastWeatherChange;
+            const remaining = (2 * 60 * 1000) - elapsed; // 2 minutes in ms
+            
+            if (remaining <= 0) {
+                return;
+            }
+            
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            const timerEl = document.getElementById('weatherTimer');
+            if (timerEl) {
+                timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Render Shop
+        function renderShop() {
+            const container = document.getElementById('shopContainer');
+            container.innerHTML = '';
+
+            plantTypes.forEach(plant => {
+                const stock = gameState.shopStock[plant.name];
+                const outOfStock = stock === 0;
+                
+                const item = document.createElement('div');
+                item.className = `shop-item ${outOfStock ? 'out-of-stock' : ''}`;
+                if (!outOfStock) {
+                    item.onclick = () => buySeed(plant.name);
+                }
+                
+                const maxStock = plant.name === 'Carrot' ? 999 : 
+                                 plantTypes.indexOf(plant) < 3 ? 30 :
+                                 plantTypes.indexOf(plant) < 6 ? 15 : 5;
+                
+                let stockClass = '';
+                if (stock === 0) stockClass = 'out';
+                else if (stock <= maxStock * 0.3) stockClass = 'low';
+                
+                item.innerHTML = `
+                    ${plant.name !== 'Carrot' ? `<div class="stock-display ${stockClass}">Stock: ${stock}</div>` : ''}
+                    <div class="shop-item-info">
+                        <div class="shop-item-header">
+                            <span class="seed-icon">${plant.emoji}</span>
+                            <span class="shop-item-title">${plant.name} Seed</span>
+                        </div>
+                        <div class="shop-item-description" style="color: ${plant.color === 'rainbow' ? 'white' : plant.color}">${plant.rarity} • ${(plant.growthTime/1000).toFixed(0)}s growth</div>
+                    </div>
+                    <button class="buy-btn" ${outOfStock ? 'disabled' : ''}>${plant.price} 💰</button>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Buy Seed
+        function buySeed(plantName) {
+            const plant = plantTypes.find(p => p.name === plantName);
+            const stock = gameState.shopStock[plantName];
+            
+            if (stock === 0) {
+                showNotification('❌ Out of stock!');
+                return;
+            }
+            
+            if (gameState.money < plant.price) {
+                showNotification('❌ Not enough money!');
+                return;
+            }
+
+            gameState.money -= plant.price;
+            gameState.seeds[plantName]++;
+            if (plant.name !== 'Carrot') {
+                gameState.shopStock[plantName]--;
+            }
+            
+            showNotification(`${plant.emoji} Bought ${plant.name} Seed!`);
+            updateUI();
+            renderShop();
+            renderSeedsInventory();
+        }
+
+        // Harvest Plant
+        function harvestPlant(index) {
+            const plant = gameState.garden[index];
+            if (!plant || plant.stage < 3) {
+                showNotification('⏰ Plant not ready yet!');
+                return;
+            }
+
+            const plantType = plant.plantType;
+            const mutation = plant.mutation;
+            
+            // Calculate weight
+            const weight = (Math.random() * (plantType.baseWeight.max - plantType.baseWeight.min) + plantType.baseWeight.min).toFixed(2);
+            
+            // Calculate value: baseValue * weight * mutationMultiplier
+            const mutationMultiplier = mutation ? mutation.multiplier : 1;
+            const value = Math.floor(plantType.baseValue * parseFloat(weight) * mutationMultiplier);
+
+            // Create inventory key
+            const inventoryKey = mutation ? `${mutation.prefix} ${plantType.name}` : plantType.name;
+            
+            // Add to inventory (DON'T add money yet - only on sell)
+            if (!gameState.inventory[inventoryKey]) {
+                gameState.inventory[inventoryKey] = {
+                    plantType: plantType,
+                    mutation: mutation,
+                    harvests: []
+                };
+            }
+            gameState.inventory[inventoryKey].harvests.push({
+                weight: parseFloat(weight),
+                value: value
+            });
+
+            gameState.totalHarvested++;
+            gameState.garden[index] = null;
+
+            const mutationText = mutation ? `${mutation.emoji} ${mutation.prefix} ` : '';
+            showNotification(`✨ Harvested ${mutationText}${plantType.emoji} ${plantType.name} (${weight}kg) worth ${value} 💰`);
+            
+            updateUI();
+            renderGarden();
+        }
+
+        // Render Seeds Inventory
+        function renderSeedsInventory() {
+            const grid = document.getElementById('seedsInventoryGrid');
+            grid.innerHTML = '';
+
+            Object.entries(gameState.seeds).forEach(([plantName, count]) => {
+                if (count <= 0) return;
+
+                const plantType = plantTypes.find(p => p.name === plantName);
+                if (!plantType) return;
+                
+                const item = document.createElement('div');
+                item.className = 'seed-inventory-item';
+                item.draggable = true;
+                
+                // Add drag event listeners
+                item.addEventListener('dragstart', (e) => handleDragStart(e, plantName));
+                item.addEventListener('dragend', handleDragEnd);
+                
+                const color = plantType.color === 'rainbow' ? 'white' : plantType.color;
+                
+                item.innerHTML = `
+                    <div class="seed-icon">${plantType.emoji}</div>
+                    <div class="seed-name" style="font-size: 11px;">${plantName}</div>
+                    <div style="font-size: 9px; color: rgba(255,255,255,0.8); margin-top: 2px;">${plantType.rarity}</div>
+                    <div class="seed-count">${count}</div>
+                `;
+                
+                grid.appendChild(item);
+            });
+            
+            if (Object.values(gameState.seeds).every(count => count === 0)) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.6); padding: 30px; font-size: 14px;">No seeds available. Buy some from the shop!</div>';
+            }
+        }
+
+        // Render Garden
+        function renderGarden() {
+            const grid = document.getElementById('gardenGrid');
+            const plots = grid.children;
+
+            gameState.garden.forEach((plant, index) => {
+                const plot = plots[index];
+                plot.innerHTML = '';
+
+                if (plant) {
+                    plot.className = 'plot';
+                    
+                    const plantType = plant.plantType;
+                    const mutation = plant.mutation;
+                    
+                    // Add rarity glow
+                    const glow = document.createElement('div');
+                    glow.className = 'rarity-glow';
+                    if (plantType.rarity === 'Prismatic') {
+                        plot.classList.add('prismatic');
+                        glow.style.background = 'linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet)';
+                    } else {
+                        glow.style.background = plantType.color;
+                    }
+                    plot.appendChild(glow);
+
+                    // Add plant with mutation effect
+                    const plantEl = document.createElement('div');
+                    let plantClass = `plant stage-${plant.stage}`;
+                    if (mutation) {
+                        plantClass += ` ${mutation.visual}`;
+                    }
+                    plantEl.className = plantClass;
+                    plantEl.textContent = plantType.emoji;
+                    plot.appendChild(plantEl);
+
+                    // Add mutation badge
+                    if (mutation) {
+                        const mutBadge = document.createElement('div');
+                        mutBadge.className = 'mutation-badge';
+                        mutBadge.textContent = `${mutation.emoji} ${mutation.name}`;
+                        plot.appendChild(mutBadge);
+                    }
+
+                    // Add rarity badge
+                    const badge = document.createElement('div');
+                    badge.className = 'rarity-badge';
+                    badge.textContent = plantType.rarity;
+                    badge.style.background = plantType.rarity === 'Prismatic' ? 
+                        'linear-gradient(45deg, red, orange, yellow, green, cyan, blue, violet)' : 
+                        plantType.color;
+                    plot.appendChild(badge);
+
+                    // Add timer
+                    const timer = document.createElement('div');
+                    const now = Date.now();
+                    const remaining = plant.harvestTime - now;
+                    
+                    if (plant.stage >= 3) {
+                        timer.className = 'timer-display ready';
+                        timer.textContent = '✅ Ready!';
+                    } else if (remaining > 0) {
+                        timer.className = 'timer-display';
+                        const seconds = Math.ceil(remaining / 1000);
+                        timer.textContent = `⏱️ ${seconds}s`;
+                    }
+                    plot.appendChild(timer);
+                } else {
+                    plot.className = 'plot empty';
+                }
+            });
+
+            renderInventory();
+            renderSeedsInventory();
+        }
+
+        // Render Inventory
+        function renderInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+
+            Object.entries(gameState.inventory).forEach(([key, data]) => {
+                if (data.harvests.length === 0) return;
+
+                const plantType = data.plantType;
+                const mutation = data.mutation;
+                const totalWeight = data.harvests.reduce((sum, h) => sum + h.weight, 0).toFixed(2);
+                const totalValue = data.harvests.reduce((sum, h) => sum + h.value, 0);
+                const avgValue = Math.floor(totalValue / data.harvests.length);
+                
+                const item = document.createElement('div');
+                item.className = 'inventory-item';
+                
+                const color = plantType.color === 'rainbow' ? 'white' : plantType.color;
+                const mutationEmoji = mutation ? mutation.emoji : '';
+                
+                item.innerHTML = `
+                    <div class="plant-icon" style="filter: drop-shadow(0 0 5px ${plantType.color})">${mutationEmoji}${plantType.emoji}</div>
+                    <div class="rarity-name" style="font-size: 10px; color: ${color}">${key}</div>
+                    <div style="font-size: 9px; color: rgba(255,255,255,0.9); margin: 3px 0;">
+                        ${totalWeight}kg
+                    </div>
+                    <div class="count">${data.harvests.length}</div>
+                    <button class="sell-btn" onclick="sellPlant('${key}')">💰 ${avgValue}</button>
+                    ${data.harvests.length > 1 ? `<button class="sell-btn" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); margin-top: 3px;" onclick="sellAllPlants('${key}')">Sell All</button>` : ''}
+                `;
+                
+                grid.appendChild(item);
+            });
+        }
+
+        // Sell All Plants
+        function sellAllPlants(key) {
+            const data = gameState.inventory[key];
+            if (!data || data.harvests.length === 0) return;
+
+            const totalValue = data.harvests.reduce((sum, h) => sum + h.value, 0);
+            const count = data.harvests.length;
+            
+            gameState.money += totalValue;
+            delete gameState.inventory[key];
+
+            showNotification(`💰 Sold ${count}x ${key} for ${totalValue} coins!`);
+            
+            updateUI();
+            renderInventory();
+        }
+
+        // Sell Plant
+        function sellPlant(key) {
+            const data = gameState.inventory[key];
+            if (!data || data.harvests.length === 0) return;
+
+            // Sell one harvest (the oldest one)
+            const harvest = data.harvests.shift();
+            gameState.money += harvest.value;
+
+            showNotification(`💰 Sold ${key} (${harvest.weight}kg) for ${harvest.value} coins!`);
+            
+            // Clean up if no harvests left
+            if (data.harvests.length === 0) {
+                delete gameState.inventory[key];
+            }
+            
+            updateUI();
+            renderInventory();
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('money').textContent = gameState.money;
+            document.getElementById('totalHarvested').textContent = gameState.totalHarvested;
+            
+            // Update weather display in header
+            const weatherDisplay = document.getElementById('weatherDisplay');
+            weatherDisplay.innerHTML = `
+                <span class="icon">${gameState.currentWeather.emoji}</span>
+                <span style="color: ${gameState.currentWeather.color}">${gameState.currentWeather.name}</span>
+            `;
+            
+            // Update weather info panel
+            const weatherIcon = document.getElementById('currentWeatherIcon');
+            const weatherName = document.getElementById('currentWeatherName');
+            const mutationChance = document.getElementById('mutationChance');
+            
+            if (weatherIcon) weatherIcon.textContent = gameState.currentWeather.emoji;
+            if (weatherName) {
+                weatherName.textContent = gameState.currentWeather.name;
+                weatherName.style.color = gameState.currentWeather.color;
+            }
+            if (mutationChance) {
+                mutationChance.textContent = `${(gameState.currentWeather.mutationChance * 100).toFixed(0)}%`;
+            }
+        }
+
+        // Change Weather
+        function changeWeather() {
+            const newWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+            gameState.currentWeather = newWeather;
+            gameState.lastWeatherChange = Date.now();
+            showNotification(`${newWeather.emoji} Weather changed to ${newWeather.name}!`);
+            updateUI();
+        }
+
+        // Show Notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize Game
+        initGarden();
+        initializeShopStock();
+        updateUI();
+        renderSeedsInventory();
+        
+        // Update timers every second
+        setInterval(() => {
+            renderGarden();
+            updateStockTimer();
+            updateWeatherTimer();
+        }, 1000);
+        
+        // Change weather every 2 minutes
+        setInterval(() => {
+            changeWeather();
+        }, 120000); // 2 minutes
+    </script>
+</body>
+</html>
